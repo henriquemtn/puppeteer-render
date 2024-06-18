@@ -16,30 +16,18 @@ const scrapeLogic = async (res) => {
   });
   try {
     const page = await browser.newPage();
+    const url = "https://www.amazon.com.br/One-Piece-Vol-Eiichiro-Oda/dp/6559604640/ref=sr_1_3?__mk_pt_BR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=1DXFFVQLQS62H&dib=eyJ2IjoiMSJ9.ozG8efdIP5nK2frPPadmHltZKwTXYqA69H_X-_Rk6KU0aX__M3ZLg6c86lyq0xnABrCoQqxbrhJXzeo425812Wsp5UPJ6Klf7ag3CYM-obQWshTuODSy74Gfi4yvYDDzheZobpSGH7tkVIDumAeKof9Cb5CJVIQl9YdjKY5A3gOQXe9oR1ycwHSUO6YCgNvXngDuaNn8IBUvA3d4l1FVGMbAmfg4ACy4eOTTuUGOzd03djqquaisBsRGli63eMsL9KbEo-S-Fg-c_j_o3brtV_qCUKzaEviv4oTd403keak.aknlBzDWK3W18Ua-Id0WnlwRpRGTXPdZGdFdsc3xWxo&dib_tag=se&keywords=one+piece&qid=1718670579&sprefix=one+p%2Caps%2C268&sr=8-3";
 
-    await page.goto("https://developer.chrome.com/");
+    await page.goto(url);
 
-    // Set screen size
-    await page.setViewport({ width: 1080, height: 1024 });
+    // Esperar que o título do produto esteja disponível na página
+    await page.waitForSelector("#productTitle");
 
-    // Type into search box
-    await page.type(".search-box__input", "automate beyond recorder");
+    // Extrair o título do produto
+    const title = await page.$eval("#productTitle", (element) => element.textContent.trim());
 
-    // Wait and click on first result
-    const searchResultSelector = ".search-box__link";
-    await page.waitForSelector(searchResultSelector);
-    await page.click(searchResultSelector);
-
-    // Locate the full title with a unique string
-    const textSelector = await page.waitForSelector(
-      "text/Customize and automate"
-    );
-    const fullTitle = await textSelector.evaluate((el) => el.textContent);
-
-    // Print the full title
-    const logStatement = `The title of this blog post is ${fullTitle}`;
-    console.log(logStatement);
-    res.send(logStatement);
+    console.log("Título do produto:", title);
+    res.send(title);
   } catch (e) {
     console.error(e);
     res.send(`Something went wrong while running Puppeteer: ${e}`);
